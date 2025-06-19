@@ -19,7 +19,7 @@ function toggleBackgroundImage() {
   const background = nextScene.querySelector('.background');
   if (background) {
     isGuanImage = !isGuanImage;
-    background.style.backgroundImage = `url("${isGuanImage ? 'guan.jpg' : 'kai.jpg'}")`;
+    background.style.backgroundImage = `url("/rabbit/${isGuanImage ? 'guan.jpg' : 'kai.jpg'}")`;
   }
 }
 
