@@ -17,7 +17,7 @@
       top: 0;
       width: 50%;
       height: 100%;
-      background-image: url("/rabbit/your-tree-background.jpg"); 
+      background-image: url("your-tree-background.jpg"); 
       background-size: 200% 100%;
       background-repeat: no-repeat;
       transition: transform 0.3s ease-out;
@@ -245,7 +245,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url("/rabbit/guan.jpg");
+      background-image: url("guan.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -593,10 +593,10 @@
 <body>
   <!-- 添加音频元素 -->
   <audio id="bgMusic" loop>
-    <source src="/rabbit/b.mp3" type="audio/mp3">
+    <source src="b.mp3" type="audio/mp3">
   </audio>
   <audio id="jumpSound">
-    <source src="/rabbit/jump.mp3" type="audio/mp3">
+    <source src="jump.mp3" type="audio/mp3">
   </audio>
  
   <div class="scene" id="firstScene">
@@ -634,14 +634,14 @@
 
     <div class="face-timer">注视屏幕: <span>0</span>秒</div>
     <div class="face-indicator"></div>
-    <img src="/rabbit/rabbit.png" id="rabbit" class="rabbit bottom" />
+    <img src="rabbit.png" id="rabbit" class="rabbit bottom" />
     <div id="handCursor"></div>
   </div>
 
   <div class="next-scene" id="nextScene">
     <div class="catch-instruction">抓住这只浪费电的小兔子</div>
     <div class="background"></div>
-    <img src="/rabbit/rabbit.png" class="rabbit bottom" style="transform: scaleX(-1);" />
+    <img src="rabbit.png" class="rabbit bottom" style="transform: scaleX(-1);" />
     <div id="handCursor2"></div>
   </div>
 
@@ -817,7 +817,7 @@
       if (background) {
         background.style.removeProperty('display');
         background.style.display = 'block';
-        background.style.backgroundImage = 'url("/rabbit/guan.jpg")';
+        background.style.backgroundImage = 'url("guan.jpg")';
         background.style.opacity = '1';
         background.classList.remove('failed', 'blurred');
       }
@@ -1240,7 +1240,7 @@
       const background = nextScene.querySelector('.background');
       if (background) {
         isGuanImage = !isGuanImage;
-        background.style.backgroundImage = `url("/rabbit/${isGuanImage ? 'guan.jpg' : 'kai.jpg'}")`;
+        background.style.backgroundImage = `url("${isGuanImage ? 'guan.jpg' : 'kai.jpg'}")`;
       }
     }
 
@@ -1315,7 +1315,7 @@
       
       const background = nextScene.querySelector('.background');
       if (background) {
-        background.style.backgroundImage = 'url("/rabbit/guan.jpg")';
+        background.style.backgroundImage = 'url("guan.jpg")';
         isGuanImage = true;
       }
 
@@ -1624,7 +1624,7 @@
         const background = document.querySelector('.next-scene .background');
         if (background) {
           background.classList.remove('blurred', 'failed');
-          background.style.backgroundImage = 'url("/rabbit/guan.jpg")';
+          background.style.backgroundImage = 'url("guan.jpg")';
         }
 
         // 重置进度和状态
