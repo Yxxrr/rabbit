@@ -1,0 +1,206 @@
+html, body {
+  margin: 0; 
+  padding: 0; 
+  height: 100%; 
+  overflow: hidden;
+  font-family: 'Georgia', serif;
+  background: #000;
+}
+
+.background-part {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background-image: url("your-tree-background.jpg"); 
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  transition: transform 0.3s ease-out;
+  z-index: 0;
+}
+
+.left { 
+  left: 0; 
+  background-position: left center; 
+}
+
+.right { 
+  right: 0; 
+  background-position: right center; 
+}
+
+.overlay {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.content {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 2rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 2s ease-in-out;
+  pointer-events: auto;
+  user-select: none;
+  position: relative;
+}
+
+.title {
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+  color: #2f2f2f;
+}
+
+.rabbit {
+  width: 120px;
+  height: auto;
+  opacity: 1;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.rabbit.bottom {
+  top: calc(100% - 140px);
+}
+
+.rabbit.bottom-left {
+  top: calc(100% - 140px);
+  left: 20px;
+  transform: scaleX(-1);
+}
+
+.rabbit.bottom-right {
+  top: calc(100% - 140px);
+  left: calc(100% - 140px);
+  transform: none;
+}
+
+.rabbit.jump {
+  animation: jump 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+}
+
+@keyframes jump {
+  0% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-20px) translateY(0); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.5s ease-out;
+}
+
+.scene.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.next-scene {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.next-scene.visible {
+  display: block;
+  opacity: 1;
+}
+
+.next-scene .background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("guan.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.next-scene .rabbit {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 120px;
+  height: auto;
+  transform: none;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+@keyframes parabolaJump {
+  0% {
+    transform: translateX(0) scaleX(-1);
+    right: 20px;
+    bottom: 20px;
+  }
+  50% {
+    transform: translateX(0) scaleX(-1);
+    right: 170px;
+    bottom: 20px;
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
+    right: 320px;
+    bottom: 20px;
+  }
+}
+
+.next-scene .rabbit.jumping {
+  animation: parabolaJump 0.8s ease-in-out forwards;
+  position: fixed;
+  bottom: 20px;
+}
+
+#nextRabbit {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 120px;
+  height: auto;
+  z-index: 4;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#handCursor {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: red;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+} 

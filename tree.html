@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For a Sustainable Future</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden;
+      font-family: 'Georgia', serif;
+      background: #000;
+    }
+
+    .background-part {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background-image: url("/rabbit/your-tree-background.jpg"); 
+      background-size: 200% 100%;
+      background-repeat: no-repeat;
+      transition: transform 0.3s ease-out;
+      z-index: 0;
+    }
+
+    .left { left: 0; background-position: left center; }
+    .right { right: 0; background-position: right center; }
+
+    .overlay {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      pointer-events: none;
+    }
+
+    .content {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 1rem;
+      backdrop-filter: blur(5px);
+      animation: fadeIn 2s ease-in-out;
+      pointer-events: auto;
+      user-select: none;
+      position: relative;
+    }
+
+    .mode-selection {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .mode-button {
+      padding: 12px 30px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border-radius: 25px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .mode-button.selected {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: #4CAF50;
+      color: #4CAF50;
+    }
+
+    .face-timer {
+      position: fixed;
+      top: 210px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px 30px;
+      border-radius: 10px;
+      backdrop-filter: blur(3px);
+      color: white;
+      font-size: 1.2rem;
+      display: none;
+      z-index: 1000;
+    }
+
+    .face-timer.visible {
+      display: block;
+    }
+
+    .face-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      display: none;
+      pointer-events: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .face-indicator.visible {
+      display: block;
+    }
+
+    .face-indicator.active {
+      border-color: #4CAF50;
+    }
+
+    /* 添加摄像头预览样式 */
+    .camera-preview {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 240px;
+      height: 180px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+      z-index: 1000;
+    }
+
+    .camera-preview.visible {
+      display: block;
+    }
+
+    .camera-preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* 镜像显示 */
+    }
+
+    .camera-preview .face-box {
+      position: absolute;
+      border: 2px solid #4CAF50;
+      border-radius: 4px;
+      pointer-events: none;
+      display: none;
+    }
+
+    .camera-preview .face-box.visible {
+      display: block;
+    }
+
+    .title {
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+      margin: 0 0 20px 0;
+      line-height: 1.4;
+      color: #2f2f2f;
+    }
+
+    .rabbit {
+      width: 120px;
+      height: auto;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: transform 0.4s ease-in-out;
+      z-index: 100;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    /* 移除不需要的类 */
+    .rabbit.bottom {
+      bottom: 20px;
+    }
+
+    .rabbit.bottom-left {
+      top: calc(100% - 140px);
+      left: 20px;
+      transform: scaleX(-1);
+    }
+
+    .rabbit.bottom-right {
+      top: calc(100% - 140px);
+      left: calc(100% - 140px);
+      transform: none;
+    }
+
+    .rabbit.jump {
+      animation: jump 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+    }
+
+    @keyframes jump {
+      0% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-30px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+
+    .scene {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .scene.hidden {
+      opacity: 0;
+      pointer-events: none;
+      display: none;
+    }
+
+    .next-scene {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+
+    .next-scene.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .next-scene .background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("/rabbit/guan.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: filter 0.5s ease;
+    }
+
+    .next-scene .background.blurred {
+      filter: blur(5px);
+    }
+
+    .next-scene .background.failed {
+      filter: grayscale(100%);
+      transition: filter 1s ease;
+    }
+
+    .next-scene .rabbit {
+      position: fixed;
+      width: 120px;
+      height: auto;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .next-scene .rabbit.face-left {
+      transform: scaleX(1);
+    }
+
+    .next-scene .rabbit.face-right {
+      transform: scaleX(-1);
+    }
+
+    @keyframes horizontalJump {
+      0% {
+        transform: translateX(0) scaleX(-1);
+      }
+      100% {
+        transform: translateX(-50px) scaleX(-1);
+      }
+    }
+
+    /* .next-scene .rabbit.jumping {
+  animation: horizontalJump 0.4s ease-in-out;
+} */
+
+
+    #nextRabbit {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 120px;
+      height: auto;
+      z-index: 4;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #handCursor, #handCursor2 {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: white;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+      transition: transform 0.1s ease, background-color 0.1s ease;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    #handCursor2 {
+      display: none;
+      z-index: 2000;
+    }
+
+    .success-icon, .fail-icon {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2rem 3rem;
+      border-radius: 15px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 2000;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .retry-button {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 25px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .retry-button:hover {
+      background: #45a049;
+    }
+
+    .fail-icon .retry-button {
+      background: #f44336;
+    }
+
+    .fail-icon .retry-button:hover {
+      background: #da190b;
+    }
+
+    .success-icon h2, .fail-icon h2 {
+      font-size: 2.5rem;
+      margin: 0 0 1rem 0;
+      font-weight: bold;
+    }
+
+    .success-icon h2 {
+      color: #2c7d3c;
+    }
+
+    .fail-icon h2 {
+      color: #d32f2f;
+    }
+
+    .success-icon p, .fail-icon p {
+      font-size: 1.5rem;
+      color: #333;
+      margin: 0;
+    }
+
+    .success-icon.visible, .fail-icon.visible {
+      opacity: 1;
+    }
+
+    .switch-count {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      color: #333;
+      z-index: 2000;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      color: #333;
+      cursor: pointer;
+      z-index: 2000;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateX(-3px);
+    }
+
+    .back-button::before {
+      content: "←";
+      font-size: 1.2em;
+    }
+
+    .instruction-box {
+      position: fixed;
+      top: 120px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(3px);
+      color: white;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      z-index: 1000;
+      pointer-events: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .instruction-box .pet-instruction,
+    .instruction-box .scroll-instruction {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+      font-weight: 500;
+      transition: opacity 0.3s ease;
+    }
+
+    .instruction-box .hidden {
+      display: none;
+      opacity: 0;
+    }
+
+    .enter-instruction {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.3);
+      padding: 15px 30px;
+      border-radius: 15px;
+      color: white;
+      font-size: 1.6rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+
+    .enter-instruction.visible {
+      opacity: 1;
+    }
+
+    @keyframes pulse {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
+    .affection-meter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 15px 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(5px);
+      color: white;
+      font-size: 1.2rem;
+      z-index: 1000;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .affection-hearts {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .heart {
+      width: 25px;
+      height: 25px;
+      background: rgba(255, 255, 255, 0.3);
+      clip-path: path('M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402m5.726-20.583c-2.203 0-4.446 1.042-5.726 3.238-1.285-2.206-3.522-3.248-5.719-3.248-3.183 0-6.281 2.187-6.281 6.191 0 4.661 5.571 9.429 12 15.809 6.43-6.38 12-11.148 12-15.809 0-4.011-3.095-6.181-6.274-6.181');
+      transition: all 0.3s ease;
+      position: relative;
+      transform-origin: center;
+    }
+
+    .heart.filled {
+      background: #ff4081;
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+      animation: heartBeat 1.2s ease-in-out;
+    }
+
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      40% { transform: scale(1.1); }
+      60% { transform: scale(1.2); }
+      100% { transform: scale(1.1); }
+    }
+
+    .heart::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      filter: blur(2px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .heart.filled::before {
+      opacity: 1;
+    }
+
+    .catch-instruction {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(3px);
+      color: white;
+      font-size: 1.1rem;
+      z-index: 2000;
+      pointer-events: none;
+      animation: fadeIn 1s ease-in-out;
+      display: none;
+    }
+
+    .face-detection-guide {
+      position: fixed;
+      top: 210px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      max-width: 240px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .face-detection-guide.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- 添加音频元素 -->
+  <audio id="bgMusic" loop>
+    <source src="/rabbit/b.mp3" type="audio/mp3">
+  </audio>
+  <audio id="jumpSound">
+    <source src="/rabbit/jump.mp3" type="audio/mp3">
+  </audio>
+ 
+  <div class="scene" id="firstScene">
+    <div class="affection-meter">
+      <div>好感度</div>
+      <div class="affection-hearts">
+        <div class="heart"></div>
+        <div class="heart"></div>
+        <div class="heart"></div>
+        <div class="heart"></div>
+        <div class="heart"></div>
+      </div>
+    </div>
+    <div class="instruction-box">
+      <div class="pet-instruction" id="petInstruction">伸手抚摸兔子提升好感度</div>
+      <div class="scroll-instruction hidden" id="scrollInstruction">滑动鼠标滚轮拉开背景</div>
+    
+    </div>
+          <div class="background-part left" id="leftPart"></div>
+      <div class="background-part right" id="rightPart"></div>
+
+      <div class="enter-instruction hidden" id="enterInstruction">
+        选择上述模式，点击兔子进入...
+      </div>
+
+      <div class="overlay">
+      <div class="content">
+        <h1 class="title">FOR A<br>SUŠTAINABLE<br>FUTURE</h1>
+        <div class="mode-selection">
+          <button class="mode-button" data-mode="hand">Hand Mode</button>
+          <button class="mode-button" data-mode="face">Face Mode</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="face-timer">注视屏幕: <span>0</span>秒</div>
+    <div class="face-indicator"></div>
+    <img src="/rabbit/rabbit.png" id="rabbit" class="rabbit bottom" />
+    <div id="handCursor"></div>
+  </div>
+
+  <div class="next-scene" id="nextScene">
+    <div class="catch-instruction">抓住这只浪费电的小兔子</div>
+    <div class="background"></div>
+    <img src="/rabbit/rabbit.png" class="rabbit bottom" style="transform: scaleX(-1);" />
+    <div id="handCursor2"></div>
+  </div>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.min.js"></script>
+
+  <script>
+    // 等待DOM加载完成
+    document.addEventListener('DOMContentLoaded', async function() {
+      const rabbit = document.getElementById('rabbit');
+      const cursor = document.getElementById('handCursor');
+      const leftPart = document.getElementById('leftPart');
+      const rightPart = document.getElementById('rightPart');
+      const firstScene = document.getElementById('firstScene');
+      const nextScene = document.getElementById('nextScene');
+      const bgMusic = document.getElementById('bgMusic');
+      const jumpSound = document.getElementById('jumpSound');
+      const modeSelection = document.querySelector('.mode-selection');
+      const faceTimer = document.querySelector('.face-timer');
+      const faceTimerCount = faceTimer ? faceTimer.querySelector('span') : null;
+      const faceIndicator = document.querySelector('.face-indicator');
+
+      let currentMode = 'hand'; // 默认为手势模式
+      let faceDetectionStartTime = 0;
+      let isFaceDetected = false;
+      let faceDetectionSuccess = false;
+      let activeCamera = null;
+      let hands = null;
+      let faceMesh = null;
+
+      // 初始化MediaPipe
+      async function initializeMediaPipe() {
+        try {
+          hands = new Hands({
+            locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+          });
+
+          hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.5
+          });
+
+          await hands.initialize();
+        } catch (error) {
+          console.error('Failed to initialize MediaPipe Hands:', error);
+        }
+      }
+
+      // 初始化音频
+      function initializeAudio() {
+        // 创建音频上下文
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+
+        // 预加载音频
+        function preloadAudio(audio) {
+          return new Promise((resolve, reject) => {
+            audio.load();
+            audio.oncanplaythrough = resolve;
+            audio.onerror = reject;
+          });
+        }
+
+        // 尝试预加载所有音频
+        Promise.all([
+          preloadAudio(bgMusic),
+          preloadAudio(jumpSound)
+        ]).then(() => {
+          console.log('所有音频加载完成');
+        }).catch(error => {
+          console.warn('音频加载出错:', error);
+        });
+
+        // 添加用户交互时播放音乐的处理
+        const playMusic = () => {
+          if (audioContext.state === 'suspended') {
+            audioContext.resume();
+          }
+          bgMusic.play().catch(error => {
+            console.warn('音乐播放失败:', error);
+          });
+          document.removeEventListener('click', playMusic);
+        };
+
+        document.addEventListener('click', playMusic);
+      }
+
+      // 初始化应用
+      async function initializeApp() {
+        await initializeMediaPipe();
+        initializeAudio();
+        
+        // 其他初始化代码...
+        // [原有的代码保持不变]
+      }
+
+      // 启动应用
+      initializeApp().catch(console.error);
+    });
+
+    const rabbit = document.getElementById('rabbit');
+    const cursor = document.getElementById('handCursor');
+    const leftPart = document.getElementById('leftPart');
+    const rightPart = document.getElementById('rightPart');
+    const firstScene = document.getElementById('firstScene');
+    const nextScene = document.getElementById('nextScene');
+    const bgMusic = document.getElementById('bgMusic');
+    const jumpSound = document.getElementById('jumpSound');
+    const modeSelection = document.querySelector('.mode-selection');
+    const faceTimer = document.querySelector('.face-timer');
+    const faceTimerCount = faceTimer.querySelector('span');
+    const faceIndicator = document.querySelector('.face-indicator');
+    
+    let currentMode = 'hand'; // 默认为手势模式
+    let faceDetectionStartTime = 0;
+    let isFaceDetected = false;
+    let faceDetectionSuccess = false;
+    let activeCamera = null;
+
+    // 页面加载完成后自动播放背景音乐
+    window.addEventListener('load', () => {
+      bgMusic.play().catch(error => {
+        console.log("等待用户交互后播放音乐");
+      });
+    });
+
+    // 添加点击事件监听器来启动背景音乐（解决自动播放限制）
+    document.addEventListener('click', () => {
+      if (bgMusic.paused) {
+        bgMusic.play();
+      }
+    }, { once: true });
+
+    // 处理模式选择
+    modeSelection.addEventListener('click', (e) => {
+      if (e.target.classList.contains('mode-button')) {
+        const selectedMode = e.target.dataset.mode;
+        currentMode = selectedMode;
+        
+        // 更新按钮状态
+        document.querySelectorAll('.mode-button').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+        e.target.classList.add('selected');
+
+        // 更新提示文本
+        if (selectedMode === 'face') {
+          const requiredTime = affectionLevel >= maxAffection ? 3 : 5;
+          document.querySelector('.instruction-box').textContent = 
+            affectionLevel >= maxAffection 
+              ? '注视屏幕3秒即可制止这只浪费电的小兔子'
+              : `好感度不足，需注视屏幕${requiredTime}秒才能制止小兔子`;
+        } else {
+          document.querySelector('.instruction-box').textContent = '手势攥拳抓住小兔子';
+        }
+      }
+    });
+
+    // 面部模式
+    function startFaceMode(rabbitElement) {
+      // 强化修复：确保nextScene和背景元素可见且有图片
+      const nextScene = document.getElementById('nextScene');
+      if (nextScene) {
+        nextScene.style.display = 'block';
+        nextScene.classList.add('visible');
+      }
+      const background = document.querySelector('.next-scene .background');
+      if (background) {
+        background.style.removeProperty('display');
+        background.style.display = 'block';
+        background.style.backgroundImage = 'url("/rabbit/guan.jpg")';
+        background.style.opacity = '1';
+        background.classList.remove('failed', 'blurred');
+      }
+
+      let x = 20;
+      let y = 0;
+      let vx = 3;
+      let vy = 0;
+      let gravity = 0.5;
+      let jumping = false;
+      let baseBottom = 20;
+      let canSwitchBackground = true;
+      let movingRight = true;
+      let isGrabbed = false;
+      let animationId = null;
+      let switchCount = 0;
+      let isFailed = false;
+      let jumpDelay = 500;
+      let faceDetectionStartTime = 0;
+      let isFaceDetected = false;
+      let isSlowing = false;
+
+      // 创建计数器显示
+      const switchCounter = document.createElement('div');
+      switchCounter.className = 'switch-count';
+      switchCounter.textContent = `亮灯次数: 0/20`;
+      document.body.appendChild(switchCounter);
+
+      // 创建摄像头预览
+      const cameraPreview = document.createElement('div');
+      cameraPreview.className = 'camera-preview';
+      const previewVideo = document.createElement('video');
+      previewVideo.autoplay = true;
+      previewVideo.muted = true;
+      previewVideo.playsInline = true;
+      cameraPreview.appendChild(previewVideo);
+      
+      // 创建面部检测框
+      const faceBox = document.createElement('div');
+      faceBox.className = 'face-box';
+      cameraPreview.appendChild(faceBox);
+      
+      document.body.appendChild(cameraPreview);
+
+      // 创建面部检测计时器
+      const faceTimer = document.createElement('div');
+      faceTimer.className = 'face-timer';
+      faceTimer.textContent = '注视兔子: 0秒';
+      document.body.appendChild(faceTimer);
+
+      // 创建面部检测指示器
+      const faceIndicator = document.createElement('div');
+      faceIndicator.className = 'face-indicator';
+      document.body.appendChild(faceIndicator);
+
+      // 设置摄像头
+      activeCamera = new Camera(previewVideo, {
+        onFrame: async () => {
+          await faceMesh.send({ image: previewVideo });
+        },
+        width: 640,
+        height: 480
+      });
+
+      // 启动摄像头
+      activeCamera.start().then(() => {
+        cameraPreview.classList.add('visible');
+      });
+
+      // 修改 toggleBackgroundImage 函数
+      const originalToggleBackground = window.toggleBackgroundImage;
+      window.toggleBackgroundImage = function() {
+        if (isFailed) return;
+        
+        originalToggleBackground();
+        switchCount++;
+        switchCounter.textContent = `亮灯次数: ${switchCount}/20`;
+
+        if (switchCount >= 20 && !isGrabbed) {
+          isFailed = true;
+          isGrabbed = true;
+          const background = document.querySelector('.next-scene .background');
+          background.classList.add('failed');
+          failIcon.classList.add('visible');
+          cancelAnimationFrame(animationId);
+        }
+      };
+
+      // 开始连续跳跃
+      function startContinuousJump() {
+        if (jumping || isGrabbed) return;
+        jumping = true;
+
+        vy = -10;
+        canSwitchBackground = true;
+
+        function animate() {
+          if (isGrabbed) {
+            cancelAnimationFrame(animationId);
+            return;
+          }
+
+          x += movingRight ? vx : -vx;
+          vy += gravity;
+          y += vy;
+
+          rabbitElement.style.left = `${x}px`;
+          rabbitElement.style.bottom = `${baseBottom - y}px`;
+
+          if (x > window.innerWidth - 140) {
+            movingRight = false;
+            x = window.innerWidth - 140;
+            rabbitElement.style.transform = 'scaleX(1)';
+          } else if (x < 20) {
+            movingRight = true;
+            x = 20;
+            rabbitElement.style.transform = 'scaleX(-1)';
+          }
+
+          if (y >= 0) {
+            y = 0;
+            jumping = false;
+            
+            if (canSwitchBackground && !isGrabbed) {
+              toggleBackgroundImage();
+              canSwitchBackground = false;
+            }
+
+            if (!isGrabbed) {
+              setTimeout(() => {
+                startContinuousJump();
+              }, 500);
+            }
+            return;
+          }
+
+          animationId = requestAnimationFrame(animate);
+        }
+
+        animate();
+      }
+
+      // 启动跳跃
+      startContinuousJump();
+
+      // 根据好感度调整初始速度和跳跃参数
+      const affectionSpeedMultiplier = Math.max(0.5, 1 - (affectionLevel * 0.1));
+      vx *= affectionSpeedMultiplier;
+
+      // 创建返回按钮
+      const backButton = document.createElement('button');
+      backButton.className = 'back-button';
+      backButton.textContent = '返回';
+      document.body.appendChild(backButton);
+
+      // 创建成功提示
+      const successIcon = document.createElement('div');
+      successIcon.className = 'success-icon';
+      successIcon.innerHTML = `
+        <h2>节能成功！</h2>
+        <p>感谢您为环保做出贡献</p>
+        <button class="retry-button">再次挑战</button>
+      `;
+      document.body.appendChild(successIcon);
+
+      // 创建失败提示
+      const failIcon = document.createElement('div');
+      failIcon.className = 'fail-icon';
+      failIcon.innerHTML = `
+        <h2>节能失败！</h2>
+        <p>浪费了0.03度电</p>
+        <button class="retry-button">再次挑战</button>
+      `;
+      document.body.appendChild(failIcon);
+
+      // 重置游戏状态
+      function resetGame() {
+        x = 20;
+        y = 0;
+        vx = 3 * affectionSpeedMultiplier;
+        switchCount = 0;
+        isGrabbed = false;
+        isFailed = false;
+        jumping = false;
+        movingRight = true;
+        canSwitchBackground = true;
+        isFaceDetected = false;
+        faceDetectionStartTime = 0;
+
+        // 重置UI
+        switchCounter.textContent = `亮灯次数: 0/20`;
+        document.querySelector('.next-scene .background').classList.remove('blurred', 'failed');
+        successIcon.classList.remove('visible');
+        failIcon.classList.remove('visible');
+        
+        // 重置兔子位置和状态
+        rabbitElement.style.left = `${x}px`;
+        rabbitElement.style.bottom = `${baseBottom}px`;
+        rabbitElement.style.transform = 'scaleX(-1)';
+
+        // 重置面部检测相关UI
+        const faceTimerElement = document.querySelector('.face-timer');
+        const faceIndicatorElement = document.querySelector('.face-indicator');
+        const faceBoxElement = document.querySelector('.face-box');
+        
+        if (faceTimerElement) {
+          faceTimerElement.textContent = '请面向摄像头';
+          faceTimerElement.style.display = 'block';
+        }
+        if (faceIndicatorElement) {
+          faceIndicatorElement.classList.remove('active');
+        }
+        if (faceBoxElement) {
+          faceBoxElement.classList.remove('visible');
+        }
+
+        // 重新开始动画
+        startContinuousJump();
+      }
+
+      // 添加按钮点击事件
+      document.querySelectorAll('.retry-button').forEach(button => {
+        button.addEventListener('click', resetGame);
+      });
+
+      // 修改 startFaceMode 函数中的重试按钮事件绑定
+      successIcon.querySelector('.retry-button').addEventListener('click', resetGame);
+      failIcon.querySelector('.retry-button').addEventListener('click', resetGame);
+
+      // 设置面部检测
+      const faceMesh = new FaceMesh({
+        locateFile: file => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+        }
+      });
+
+      faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+
+      // 眼睛关键点索引
+      const LEFT_EYE_INDICES = [33, 160, 158, 133, 153, 144];  // 左眼轮廓点
+      const RIGHT_EYE_INDICES = [362, 385, 387, 263, 373, 380];  // 右眼轮廓点
+
+      // 计算眼睛纵横比（EAR）
+      function calculateEAR(landmarks, eyeIndices) {
+        const points = eyeIndices.map(index => landmarks[index]);
+        
+        // 计算垂直距离
+        const v1 = Math.sqrt(
+          Math.pow(points[1].x - points[5].x, 2) + 
+          Math.pow(points[1].y - points[5].y, 2)
+        );
+        const v2 = Math.sqrt(
+          Math.pow(points[2].x - points[4].x, 2) + 
+          Math.pow(points[2].y - points[4].y, 2)
+        );
+        
+        // 计算水平距离
+        const h = Math.sqrt(
+          Math.pow(points[0].x - points[3].x, 2) + 
+          Math.pow(points[0].y - points[3].y, 2)
+        );
+        
+        // 计算 EAR
+        return (v1 + v2) / (2.0 * h);
+      }
+
+      faceMesh.onResults(results => {
+        if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+          if (isFaceDetected) {
+            isFaceDetected = false;
+            faceDetectionStartTime = 0;
+            faceTimer.textContent = '请面向摄像头';
+            faceIndicator.classList.remove('active');
+            faceBox.classList.remove('visible');
+          }
+          return;
+        }
+
+        const landmarks = results.multiFaceLandmarks[0];
+        
+        // 计算两只眼睛的 EAR
+        const leftEAR = calculateEAR(landmarks, LEFT_EYE_INDICES);
+        const rightEAR = calculateEAR(landmarks, RIGHT_EYE_INDICES);
+        
+        // 取平均值
+        const avgEAR = (leftEAR + rightEAR) / 2.0;
+        
+        // EAR 阈值，低于此值认为是睁眼状态
+        const EAR_THRESHOLD = 0.2;
+        const isEyesOpen = avgEAR > EAR_THRESHOLD;
+
+        // 获取所需注视时间
+        const requiredTime = affectionLevel >= maxAffection ? 3 : 5;
+
+        // 更新面部检测框
+        const faceBounds = {
+          xMin: Math.min(...landmarks.map(l => l.x)),
+          xMax: Math.max(...landmarks.map(l => l.x)),
+          yMin: Math.min(...landmarks.map(l => l.y)),
+          yMax: Math.max(...landmarks.map(l => l.y))
+        };
+
+        const boxWidth = (faceBounds.xMax - faceBounds.xMin) * cameraPreview.offsetWidth;
+        const boxHeight = (faceBounds.yMax - faceBounds.yMin) * cameraPreview.offsetHeight;
+        const boxLeft = faceBounds.xMin * cameraPreview.offsetWidth;
+        const boxTop = faceBounds.yMin * cameraPreview.offsetHeight;
+
+        faceBox.style.left = `${boxLeft}px`;
+        faceBox.style.top = `${boxTop}px`;
+        faceBox.style.width = `${boxWidth}px`;
+        faceBox.style.height = `${boxHeight}px`;
+        faceBox.classList.add('visible');
+
+        if (!isFaceDetected && isEyesOpen) {
+          isFaceDetected = true;
+          faceDetectionStartTime = Date.now();
+          faceIndicator.classList.add('active');
+          cameraPreview.classList.add('visible');
+          faceTimer.style.display = 'block';
+          faceTimer.textContent = '注视时间: 0秒';
+        } else if (!isEyesOpen) {
+          if (isFaceDetected) {
+            isFaceDetected = false;
+            faceDetectionStartTime = 0;
+            faceTimer.textContent = '请睁开眼睛';
+          }
+        }
+
+        if (isFaceDetected && !isGrabbed) {
+          const elapsedTime = Math.floor((Date.now() - faceDetectionStartTime) / 1000);
+          const remainingTime = requiredTime - elapsedTime;
+          
+          if (remainingTime > 0) {
+            faceTimer.textContent = `注视时间: ${elapsedTime}秒 (还需${remainingTime}秒)`;
+          } else {
+            faceTimer.textContent = '注视成功！';
+          }
+
+          // 达到所需时间后停止动画并显示成功
+          if (elapsedTime >= requiredTime) {
+            isGrabbed = true;
+            document.querySelector('.next-scene .background').classList.add('blurred');
+            successIcon.classList.add('visible');
+            cancelAnimationFrame(animationId);
+          }
+        }
+      });
+    }
+
+    let affectionLevel = 0;
+    const maxAffection = 5;
+    let lastPetTime = 0;
+    const petCooldown = 1000; // 抚摸冷却时间（毫秒）
+    let progress = 0;
+    let isRabbitFallen = false;
+    let canJump = false;
+    const max = 100;
+    let canTransition = false;
+    let isGuanImage = true;
+    let rabbitPosition = 0;
+
+    // 更新好感度显示
+    function updateAffectionDisplay() {
+      // 检查是否在第一个场景
+      if (firstScene.style.display === 'none') return;
+
+      const affectionMeter = document.querySelector('.affection-meter');
+      if (!affectionMeter) return;
+
+      const hearts = affectionMeter.querySelectorAll('.heart');
+      if (!hearts || hearts.length === 0) return;
+
+      hearts.forEach((heart, index) => {
+        if (index < affectionLevel) {
+          heart.classList.add('filled');
+        } else {
+          heart.classList.remove('filled');
+        }
+      });
+
+      // 在好感度满值时切换显示的文字
+      const petInstruction = document.getElementById('petInstruction');
+      const scrollInstruction = document.getElementById('scrollInstruction');
+      
+      if (petInstruction && scrollInstruction) {
+        if (affectionLevel >= maxAffection) {
+          petInstruction.classList.add('hidden');
+          scrollInstruction.classList.remove('hidden');
+        } else {
+          petInstruction.classList.remove('hidden');
+          scrollInstruction.classList.add('hidden');
+        }
+      }
+    }
+
+    // 增加好感度
+    function increaseAffection() {
+      // 检查是否在第一个场景
+      if (firstScene.style.display === 'none') return;
+      
+      const currentTime = Date.now();
+      if (currentTime - lastPetTime < petCooldown) return; // 检查冷却时间
+      
+      lastPetTime = currentTime;
+      makeRabbitJump(); // 无论好感度是否达到上限都会跳跃
+      
+      if (affectionLevel < maxAffection) {
+        affectionLevel++;
+        updateAffectionDisplay();
+      }
+    }
+
+    // 切换背景图片
+    function toggleBackgroundImage() {
+      const background = nextScene.querySelector('.background');
+      if (background) {
+        isGuanImage = !isGuanImage;
+        background.style.backgroundImage = `url("/rabbit/${isGuanImage ? 'guan.jpg' : 'kai.jpg'}")`;
+      }
+    }
+
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      
+      const newProgress = progress + (e.deltaY > 0 ? 5 : -5);
+      progress = Math.min(Math.max(newProgress, 0), max);
+      
+      const offset = (progress / max) * window.innerWidth;
+      leftPart.style.transform = `translateX(${-offset}px)`;
+      rightPart.style.transform = `translateX(${offset}px)`;
+      
+      canTransition = progress >= max;
+      
+      const enterInstruction = document.getElementById('enterInstruction');
+      if (canTransition) {
+        rabbit.classList.add('bottom-right');
+        enterInstruction.classList.add('visible');
+      } else {
+        rabbit.classList.remove('bottom-right');
+        enterInstruction.classList.remove('visible');
+      }
+    }, { passive: false });
+
+    document.addEventListener('click', (e) => {
+      if (e.target === rabbit && canTransition) {
+        switchToNextScene();
+      }
+    });
+
+    function makeRabbitJump() {
+      if (!canJump) return;
+      rabbit.classList.remove('jump'); // 先移除类，以便可以重新触发动画
+      void rabbit.offsetWidth; // 触发重排，确保动画可以重新开始
+      rabbit.classList.add('jump');
+      setTimeout(() => {
+        rabbit.classList.remove('jump');
+      }, 400);
+    }
+
+    const video = document.createElement('video');
+    video.style.display = 'none';
+    document.body.appendChild(video);
+
+    const hands = new Hands({
+      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.5
+    });
+
+    // 场景切换函数
+    function switchToNextScene() {
+      // 隐藏第一个场景的光标
+      const firstSceneCursor = document.getElementById('handCursor');
+      if (firstSceneCursor) {
+        firstSceneCursor.style.display = 'none';
+      }
+
+      firstScene.style.display = 'none';
+      nextScene.classList.add('visible');
+      
+      // 停止背景音乐并播放跳跃音效
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      jumpSound.play();
+      
+      const background = nextScene.querySelector('.background');
+      if (background) {
+        background.style.backgroundImage = 'url("/rabbit/guan.jpg")';
+        isGuanImage = true;
+      }
+
+      const nextSceneRabbit = nextScene.querySelector('.rabbit');
+      if (nextSceneRabbit) {
+        // 设置初始朝向（向右移动时朝左）
+        nextSceneRabbit.style.transform = 'scaleX(-1)';
+        
+        if (currentMode === 'face') {
+          startFaceMode(nextSceneRabbit);
+        } else {
+          startHandMode(nextSceneRabbit);
+        }
+      }
+    }
+
+    // 手势模式
+    function startHandMode(rabbitElement) {
+      // 获取光标元素
+      const cursor = document.getElementById('handCursor2');
+      cursor.style.display = 'block';
+
+      let x = 20;
+      let y = 0;
+      let vx = 3;
+      let vy = 0;
+      let gravity = 0.5;
+      let jumping = false;
+      let baseBottom = 20;
+      let canSwitchBackground = true;
+      let movingRight = true;
+      let isGrabbed = false;
+      let animationId = null;
+      let switchCount = 0;
+      let isFailed = false;
+
+      // 根据好感度调整初始速度
+      const affectionSpeedMultiplier = Math.max(0.5, 1 - (affectionLevel * 0.1));
+      vx *= affectionSpeedMultiplier;
+
+      // 创建返回按钮
+      const backButton = document.createElement('button');
+      backButton.className = 'back-button';
+      backButton.textContent = '返回';
+      document.body.appendChild(backButton);
+
+      // 创建成功提示
+      const successIcon = document.createElement('div');
+      successIcon.className = 'success-icon';
+      successIcon.innerHTML = `
+        <h2>节能成功！</h2>
+        <p>感谢您为环保做出贡献</p>
+        <button class="retry-button">再次挑战</button>
+      `;
+      document.body.appendChild(successIcon);
+
+      // 创建失败提示
+      const failIcon = document.createElement('div');
+      failIcon.className = 'fail-icon';
+      failIcon.innerHTML = `
+        <h2>节能失败！</h2>
+        <p>浪费了0.03度电</p>
+        <button class="retry-button">再次挑战</button>
+      `;
+      document.body.appendChild(failIcon);
+
+      // 创建计数器显示
+      const switchCounter = document.createElement('div');
+      switchCounter.className = 'switch-count';
+      switchCounter.textContent = `亮灯次数: 0/20`;
+      document.body.appendChild(switchCounter);
+
+      // 创建抓取提示
+      const catchInstruction = document.querySelector('.catch-instruction');
+      if (catchInstruction) {
+        catchInstruction.style.display = 'block';
+      }
+
+      // 开始连续跳跃
+      function startContinuousJump() {
+        if (jumping || isGrabbed) return;
+        jumping = true;
+
+        vy = -10;
+        canSwitchBackground = true;
+
+        function animate() {
+          if (isGrabbed) {
+            cancelAnimationFrame(animationId);
+            return;
+          }
+
+          x += movingRight ? vx : -vx;
+          vy += gravity;
+          y += vy;
+
+          rabbitElement.style.left = `${x}px`;
+          rabbitElement.style.bottom = `${baseBottom - y}px`;
+
+          if (x > window.innerWidth - 140) {
+            movingRight = false;
+            x = window.innerWidth - 140;
+            rabbitElement.style.transform = 'scaleX(1)';
+          } else if (x < 20) {
+            movingRight = true;
+            x = 20;
+            rabbitElement.style.transform = 'scaleX(-1)';
+          }
+
+          if (y >= 0) {
+            y = 0;
+            jumping = false;
+            
+            if (canSwitchBackground && !isGrabbed) {
+              toggleBackgroundImage();
+              canSwitchBackground = false;
+            }
+
+            if (!isGrabbed) {
+              setTimeout(() => {
+                startContinuousJump();
+              }, 500);
+            }
+            return;
+          }
+
+          animationId = requestAnimationFrame(animate);
+        }
+
+        animate();
+      }
+
+      // 修改toggleBackgroundImage函数
+      const originalToggleBackground = window.toggleBackgroundImage;
+      window.toggleBackgroundImage = function() {
+        if (isFailed) return;
+        
+        originalToggleBackground();
+        switchCount++;
+        switchCounter.textContent = `亮灯次数: ${switchCount}/20`;
+
+        if (switchCount >= 20 && !isGrabbed) {
+          isFailed = true;
+          isGrabbed = true;
+          const background = document.querySelector('.next-scene .background');
+          background.classList.add('failed');
+          failIcon.classList.add('visible');
+          cancelAnimationFrame(animationId);
+        }
+      };
+
+      // 重置游戏状态
+      function resetGame() {
+        x = 20;
+        y = 0;
+        vx = 3 * affectionSpeedMultiplier;
+        switchCount = 0;
+        isGrabbed = false;
+        isFailed = false;
+        jumping = false;
+        movingRight = true;
+        canSwitchBackground = true;
+        isFaceDetected = false;
+        faceDetectionStartTime = 0;
+
+        // 重置UI
+        switchCounter.textContent = `亮灯次数: 0/20`;
+        document.querySelector('.next-scene .background').classList.remove('blurred', 'failed');
+        successIcon.classList.remove('visible');
+        failIcon.classList.remove('visible');
+        
+        // 重置兔子位置和状态
+        rabbitElement.style.left = `${x}px`;
+        rabbitElement.style.bottom = `${baseBottom}px`;
+        rabbitElement.style.transform = 'scaleX(-1)';
+
+        // 重置面部检测相关UI
+        const faceTimerElement = document.querySelector('.face-timer');
+        const faceIndicatorElement = document.querySelector('.face-indicator');
+        const faceBoxElement = document.querySelector('.face-box');
+        
+        if (faceTimerElement) {
+          faceTimerElement.textContent = '请面向摄像头';
+          faceTimerElement.style.display = 'block';
+        }
+        if (faceIndicatorElement) {
+          faceIndicatorElement.classList.remove('active');
+        }
+        if (faceBoxElement) {
+          faceBoxElement.classList.remove('visible');
+        }
+
+        // 重新开始动画
+        startContinuousJump();
+      }
+
+      // 添加按钮点击事件
+      document.querySelectorAll('.retry-button').forEach(button => {
+        button.addEventListener('click', resetGame);
+      });
+
+      // 修改 startFaceMode 函数中的重试按钮事件绑定
+      successIcon.querySelector('.retry-button').addEventListener('click', resetGame);
+      failIcon.querySelector('.retry-button').addEventListener('click', resetGame);
+
+      // 启动跳跃循环
+      startContinuousJump();
+
+      // 检查手势捏合
+      hands.onResults(results => {
+        if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+          cursor.style.display = 'none';
+          return;
+        }
+
+        cursor.style.display = 'block';
+        const landmarks = results.multiHandLandmarks[0];
+        const indexTip = landmarks[8];
+        const thumbTip = landmarks[4];
+
+        // 镜像坐标转换
+        const x = (1 - indexTip.x) * window.innerWidth;
+        const y = indexTip.y * window.innerHeight;
+        
+        // 更新光标位置
+        cursor.style.left = `${x}px`;
+        cursor.style.top = `${y}px`;
+
+        // 计算捏合距离
+        const dx = thumbTip.x - indexTip.x;
+        const dy = thumbTip.y - indexTip.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // 更新光标状态
+        if (distance < 0.08) {
+          cursor.style.transform = 'translate(-50%, -50%) scale(0.7)';
+          cursor.style.background = 'rgba(255, 0, 0, 1)';
+          cursor.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.8)';
+        } else {
+          cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+          cursor.style.background = 'rgba(255, 255, 255, 0.8)';
+          cursor.style.boxShadow = 'none';
+        }
+
+        // 获取兔子位置
+        const rabbitRect = rabbitElement.getBoundingClientRect();
+        const isNearRabbit = Math.abs(x - (rabbitRect.left + rabbitRect.width / 2)) < 50 &&
+                            Math.abs(y - (rabbitRect.top + rabbitRect.height / 2)) < 50;
+
+        if (isNearRabbit && distance < 0.08 && !isGrabbed && !isFailed) {
+          isGrabbed = true;
+          document.querySelector('.next-scene .background').classList.add('blurred');
+          successIcon.classList.add('visible');
+          cancelAnimationFrame(animationId);
+        }
+      });
+
+      // 返回按钮点击事件
+      backButton.addEventListener('click', async () => {
+        // 停止动画和面部检测
+        isGrabbed = true;
+        cancelAnimationFrame(animationId);
+        
+        // 如果存在活动的摄像头，停止它
+        if (activeCamera) {
+          await activeCamera.stop();
+          activeCamera = null;
+        }
+
+        // 停止跳跃音效并重新播放背景音乐
+        jumpSound.pause();
+        jumpSound.currentTime = 0;
+        bgMusic.play();
+        
+        // 隐藏光标
+        if (cursor) cursor.style.display = 'none';
+        
+        // 移除所有创建的元素
+        [successIcon, failIcon, switchCounter, backButton].forEach(element => {
+          if (element && element.parentNode) {
+            element.parentNode.removeChild(element);
+          }
+        });
+
+        // 隐藏抓取提示
+        const catchInst = document.querySelector('.catch-instruction');
+        if (catchInst) {
+          catchInst.style.display = 'none';
+        }
+
+        // 隐藏面部检测相关元素
+        const faceTimer = document.querySelector('.face-timer');
+        const faceIndicator = document.querySelector('.face-indicator');
+        const cameraPreview = document.querySelector('.camera-preview');
+        
+        if (faceTimer) faceTimer.style.display = 'none';
+        if (faceIndicator) faceIndicator.style.display = 'none';
+        if (cameraPreview) {
+          cameraPreview.style.display = 'none';
+          if (cameraPreview.parentNode) {
+            cameraPreview.parentNode.removeChild(cameraPreview);
+          }
+        }
+
+        // 重置背景
+        const background = document.querySelector('.next-scene .background');
+        if (background) {
+          background.classList.remove('blurred', 'failed');
+          background.style.backgroundImage = 'url("/rabbit/guan.jpg")';
+        }
+
+        // 重置进度和状态
+        progress = 0;
+        canTransition = false;
+        isGuanImage = true;
+
+        // 重置第一个场景的状态
+        leftPart.style.transform = 'translateX(0)';
+        rightPart.style.transform = 'translateX(0)';
+
+        // 重置第一个场景的兔子
+        rabbit.className = 'rabbit bottom';
+        rabbit.style.transform = '';
+        rabbit.style.left = '';
+        rabbit.style.bottom = '';
+
+        // 重置模式选择按钮状态
+        document.querySelectorAll('.mode-button').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+
+        // 重置指示文本
+        const enterInstruction = document.getElementById('enterInstruction');
+        if (enterInstruction) {
+          enterInstruction.classList.remove('visible');
+        }
+
+        // 确保第一个场景显示
+        firstScene.style.display = 'block';
+        firstScene.style.opacity = '1';
+        
+        // 隐藏第二个场景
+        nextScene.classList.remove('visible');
+        nextScene.style.display = 'none';
+
+        // 显示第一个场景的光标
+        const firstSceneCursor = document.getElementById('handCursor');
+        if (firstSceneCursor) {
+          firstSceneCursor.style.display = 'block';
+        }
+
+        // 重新初始化摄像头
+        const video = document.createElement('video');
+        video.style.display = 'none';
+        document.body.appendChild(video);
+
+        // 重新初始化手势检测
+        if (hands) {
+          activeCamera = new Camera(video, {
+            onFrame: async () => {
+              await hands.send({ image: video });
+            },
+            width: 640,
+            height: 480
+          });
+
+          try {
+            await activeCamera.start();
+            console.log('摄像头重新启动成功');
+          } catch (error) {
+            console.error('摄像头重新启动失败:', error);
+          }
+
+          hands.onResults((results) => {
+            // 只在第一个场景显示时处理手势
+            if (firstScene.style.display === 'none') return;
+            
+            const cursor = document.getElementById('handCursor');
+            
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+              if (cursor) cursor.style.display = 'none';
+              return;
+            }
+
+            if (cursor) cursor.style.display = 'block';
+            
+            const landmarks = results.multiHandLandmarks[0];
+            const indexTip = landmarks[8];
+            const thumbTip = landmarks[4];
+
+            // 镜像坐标转换
+            const x = (1 - indexTip.x) * window.innerWidth;
+            const y = indexTip.y * window.innerHeight;
+            
+            if (cursor) {
+              cursor.style.left = `${x}px`;
+              cursor.style.top = `${y}px`;
+            }
+
+            const rabbitRect = rabbit.getBoundingClientRect();
+            const isOverRabbit = x > rabbitRect.left && x < rabbitRect.right &&
+                               y > rabbitRect.top && y < rabbitRect.bottom;
+
+            // 更新光标状态
+            if (cursor) {
+              const distance = Math.sqrt(
+                Math.pow(thumbTip.x - indexTip.x, 2) +
+                Math.pow(thumbTip.y - indexTip.y, 2)
+              );
+
+              if (distance < 0.08) {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.7)';
+                cursor.style.background = 'rgba(255, 0, 0, 1)';
+                cursor.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.8)';
+              } else {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursor.style.background = 'rgba(255, 255, 255, 0.8)';
+                cursor.style.boxShadow = 'none';
+              }
+            }
+
+            // 检测抚摸动作并增加好感度
+            if (isOverRabbit) {
+              canJump = true;
+              increaseAffection();
+            } else {
+              canJump = false;
+            }
+          });
+        }
+      });
+    }
+
+    // 处理第一个场景的手势检测
+    hands.onResults(results => {
+      // 只在第一个场景显示时处理手势
+      if (firstScene.style.display === 'none') return;
+
+      const cursor = document.getElementById('handCursor');
+      
+      if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+        if (cursor) cursor.style.display = 'none';
+        return;
+      }
+
+      if (cursor) cursor.style.display = 'block';
+      
+      const landmarks = results.multiHandLandmarks[0];
+      const indexTip = landmarks[8];
+      const thumbTip = landmarks[4];
+
+      // 镜像坐标转换
+      const x = (1 - indexTip.x) * window.innerWidth;
+      const y = indexTip.y * window.innerHeight;
+      
+      // 使用 requestAnimationFrame 来平滑光标移动
+      requestAnimationFrame(() => {
+        if (cursor) {
+          cursor.style.left = `${x}px`;
+          cursor.style.top = `${y}px`;
+        }
+      });
+
+      // 镜像转换后的拇指坐标
+      const mirroredThumbTip = {
+        x: 1 - thumbTip.x,
+        y: thumbTip.y
+      };
+
+      const dx = mirroredThumbTip.x - (1 - indexTip.x);
+      const dy = mirroredThumbTip.y - indexTip.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      const rabbitRect = rabbit.getBoundingClientRect();
+      const isOverRabbit = x > rabbitRect.left && x < rabbitRect.right &&
+                         y > rabbitRect.top && y < rabbitRect.bottom;
+
+      // 更新光标状态
+      if (cursor) {
+        if (distance < 0.08) {
+          cursor.style.transform = 'translate(-50%, -50%) scale(0.7)';
+          cursor.style.background = 'rgba(255, 0, 0, 1)';
+          cursor.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.8)';
+        } else {
+          cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+          cursor.style.background = 'rgba(255, 255, 255, 0.8)';
+          cursor.style.boxShadow = 'none';
+        }
+      }
+
+      // 检测抚摸动作并增加好感度
+      if (isOverRabbit) {
+        canJump = true;
+        increaseAffection();
+      } else {
+        canJump = false;
+      }
+    });
+
+    activeCamera = new Camera(video, {
+      onFrame: async () => {
+        await hands.send({ image: video });
+      },
+      width: 640,
+      height: 480
+    });
+    activeCamera.start();
+
+    let originalVx = 3; // 保存初始速度
+    let currentVx = originalVx;
+
+    function startSlowingDown() {
+      if (isSlowing) return;
+      isSlowing = true;
+      
+      function slowDown() {
+        if (!isSlowing) return;
+        
+        currentVx *= 0.95; // 每次减少5%的速度
+        vx = currentVx;
+        
+        if (currentVx > 0.1) {
+          requestAnimationFrame(slowDown);
+        } else {
+          // 速度足够小时停止并显示成功
+          isGrabbed = true;
+          document.querySelector('.next-scene .background').classList.add('blurred');
+          successIcon.classList.add('visible');
+          cancelAnimationFrame(animationId);
+        }
+      }
+      
+      slowDown();
+    }
+
+    // 初始化时确保光标隐藏
+    document.getElementById('handCursor').style.display = 'none';
+    document.getElementById('handCursor2').style.display = 'none';
+  </script>
+</body>
+</html>
+
